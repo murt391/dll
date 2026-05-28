@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>dll</title>
-    <!-- Google Fonts: Fredoka for a curvy, cartoony style -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
@@ -36,7 +34,6 @@
             position: relative;
         }
 
-        /* Canvas Background */
         #particle-canvas {
             position: absolute;
             top: 0;
@@ -47,14 +44,35 @@
             pointer-events: none;
         }
 
-        /* Version at the top */
         .version-top {
             position: absolute;
             top: 20px;
+            left: 20px;
             font-size: 1.2rem;
             opacity: 0.6;
             font-weight: 400;
             z-index: 2;
+        }
+
+        .settings-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: var(--text-white);
+            cursor: pointer;
+            z-index: 10;
+            transition: transform 0.2s ease;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .settings-btn:hover {
+            transform: rotate(45deg);
         }
 
         .hero-container {
@@ -85,7 +103,6 @@
             min-height: 2.2rem;
         }
 
-        /* Floating Bottom Bar */
         .bottom-bar {
             position: fixed;
             bottom: 30px;
@@ -119,18 +136,18 @@
         }
 
         @media (max-width: 600px) {
-            .title {
-                font-size: 6rem;
-            }
-            .subtitle {
-                font-size: 1.2rem;
-            }
+            .title { font-size: 6rem; }
+            .subtitle { font-size: 1.2rem; }
         }
     </style>
 </head>
 <body>
 
     <div class="version-top">version 1</div>
+
+    <a href="settings.html" class="settings-btn" title="Settings">
+        <i data-lucide="settings" size="24"></i>
+    </a>
 
     <canvas id="particle-canvas"></canvas>
 
@@ -148,19 +165,35 @@
         </a>
     </nav>
 
+    <audio id="bgMusic" loop></audio>
+
     <script>
         lucide.createIcons();
 
-        const sayings = [ "hamood habibi", "murt", "idk what to put here", "totally math ;)", "blah blah blah bleh bleh bleh blu blu blu", "grannys house", "homer drops his donut DOH" ];
+        // Music Logic
+        const bgMusic = document.getElementById('bgMusic');
+        let currentSong = localStorage.getItem('currentSong') || '';
+        let dotsEnabled = localStorage.getItem('dotsEnabled') !== 'false';
 
-        function setRandomSubtitle() {
-            const subtitleElement = document.getElementById('subtitle');
-            const randomIndex = Math.floor(Math.random() * sayings.length);
-            subtitleElement.textContent = sayings[randomIndex];
+        function updateMusic() {
+            if (currentSong) {
+                bgMusic.src = currentSong;
+                bgMusic.play().catch(e => console.log("Autoplay blocked"));
+            }
         }
+        
+        window.addEventListener('click', () => {
+            if (currentSong && bgMusic.paused) bgMusic.play();
+        }, { once: true });
 
-        setRandomSubtitle();
+        updateMusic();
 
+        // Subtitle Logic
+        const sayings = [ "hamood habibi", "murt", "idk what to put here", "totally math ;)", "blah blah blah bleh bleh bleh blu blu blu", "grannys house", "homer drops his donut DOH" ];
+        const subtitleElement = document.getElementById('subtitle');
+        subtitleElement.textContent = sayings[Math.floor(Math.random() * sayings.length)];
+
+        // Particle System
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -173,15 +206,8 @@
         }
 
         window.addEventListener('resize', resizeCanvas);
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.x;
-            mouse.y = e.y;
-        });
-        
-        window.addEventListener('mouseout', () => {
-            mouse.x = null;
-            mouse.y = null;
-        });
+        window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+        window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
 
         class Particle {
             constructor() {
@@ -191,17 +217,12 @@
                 this.speedX = (Math.random() - 0.5) * 0.3;
                 this.speedY = (Math.random() - 0.5) * 0.3;
             }
-
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
-
-                if (this.x > canvas.width) this.x = 0;
-                else if (this.x < 0) this.x = canvas.width;
-                if (this.y > canvas.height) this.y = 0;
-                else if (this.y < 0) this.y = canvas.height;
+                if (this.x > canvas.width) this.x = 0; else if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0; else if (this.y < 0) this.y = canvas.height;
             }
-
             draw() {
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                 ctx.beginPath();
@@ -213,37 +234,32 @@
         function initParticles() {
             particles = [];
             const numberOfParticles = (canvas.width * canvas.height) / 8000;
-            for (let i = 0; i < numberOfParticles; i++) {
-                particles.push(new Particle());
-            }
-        }
-
-        function connect() {
-            if (mouse.x !== null) {
-                for (let i = 0; i < particles.length; i++) {
-                    const dxMouse = particles[i].x - mouse.x;
-                    const dyMouse = particles[i].y - mouse.y;
-                    const distanceMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
-
-                    if (distanceMouse < mouse.radius) {
-                        ctx.strokeStyle = `rgba(177, 156, 217, ${1 - distanceMouse/mouse.radius})`;
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(mouse.x, mouse.y);
-                        ctx.stroke();
-                    }
-                }
-            }
+            for (let i = 0; i < numberOfParticles; i++) particles.push(new Particle());
         }
 
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
+            if (dotsEnabled) {
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                }
+                if (mouse.x !== null) {
+                    for (let i = 0; i < particles.length; i++) {
+                        const dx = particles[i].x - mouse.x;
+                        const dy = particles[i].y - mouse.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < mouse.radius) {
+                            ctx.strokeStyle = `rgba(177, 156, 217, ${1 - dist/mouse.radius})`;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(mouse.x, mouse.y);
+                            ctx.stroke();
+                        }
+                    }
+                }
             }
-            connect();
             requestAnimationFrame(animate);
         }
 
