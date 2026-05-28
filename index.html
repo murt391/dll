@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>dll</title>
     <!-- Google Fonts: Fredoka for a curvy, cartoony style -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -44,7 +44,17 @@
             width: 100%;
             height: 100%;
             z-index: 0;
-            pointer-events: none; /* Allows interaction with elements above if needed, but we handle mouse on window */
+            pointer-events: none;
+        }
+
+        /* Version at the top */
+        .version-top {
+            position: absolute;
+            top: 20px;
+            font-size: 1.2rem;
+            opacity: 0.6;
+            font-weight: 400;
+            z-index: 2;
         }
 
         .hero-container {
@@ -52,23 +62,27 @@
             user-select: none;
             position: relative;
             z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
         }
 
         .title {
-            font-size: 8rem;
+            font-size: 10rem;
             line-height: 1;
-            margin-bottom: 0.5rem;
-            letter-spacing: -2px;
+            letter-spacing: 4px;
         }
 
         .title span {
             color: var(--dot-purple);
         }
 
-        .version {
-            font-size: 1.5rem;
+        .subtitle {
+            font-size: 1.8rem;
+            color: var(--text-white);
             opacity: 0.8;
             font-weight: 400;
+            min-height: 2.2rem;
         }
 
         /* Floating Bottom Bar */
@@ -96,6 +110,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            text-decoration: none;
         }
 
         .icon-btn:hover {
@@ -103,12 +118,11 @@
             opacity: 0.8;
         }
 
-        /* Responsive adjustments */
         @media (max-width: 600px) {
             .title {
-                font-size: 5rem;
+                font-size: 6rem;
             }
-            .version {
+            .subtitle {
                 font-size: 1.2rem;
             }
         }
@@ -116,31 +130,49 @@
 </head>
 <body>
 
+    <div class="version-top">version 1</div>
+
     <canvas id="particle-canvas"></canvas>
 
     <div class="hero-container">
         <h1 class="title">dll<span>.</span></h1>
-        <p class="version">version 1</p>
+        <p id="subtitle" class="subtitle">loading...</p>
     </div>
 
     <nav class="bottom-bar">
-        <div class="icon-btn" title="Games">
+        <a href="games.html" class="icon-btn" title="Games">
             <i data-lucide="gamepad-2" size="28"></i>
-        </div>
-        <div class="icon-btn" title="Menu">
+        </a>
+        <a href="apps.html" class="icon-btn" title="Apps">
             <i data-lucide="layout-grid" size="28"></i>
-        </div>
+        </a>
     </nav>
 
     <script>
-        // Initialize Lucide icons
         lucide.createIcons();
 
-        // Particle System Logic
+        const sayings = [
+            "hamood habibi",
+            "murt",
+            "idk what to put here",
+            "totally math ;)",
+            "blah blah blah bleh bleh bleh blu blu blu",
+            "grannys house",
+            "homer drops his donut DOH"
+        ];
+
+        function setRandomSubtitle() {
+            const subtitleElement = document.getElementById('subtitle');
+            const randomIndex = Math.floor(Math.random() * sayings.length);
+            subtitleElement.textContent = sayings[randomIndex];
+        }
+
+        setRandomSubtitle();
+
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        const mouse = { x: null, y: null, radius: 150 };
+        const mouse = { x: null, y: null, radius: 180 };
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -153,14 +185,19 @@
             mouse.x = e.x;
             mouse.y = e.y;
         });
+        
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
 
         class Particle {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 1;
-                this.speedX = (Math.random() - 0.5) * 0.8;
-                this.speedY = (Math.random() - 0.5) * 0.8;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.3;
+                this.speedY = (Math.random() - 0.5) * 0.3;
             }
 
             update() {
@@ -174,7 +211,7 @@
             }
 
             draw() {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -183,41 +220,24 @@
 
         function initParticles() {
             particles = [];
-            const numberOfParticles = (canvas.width * canvas.height) / 9000;
+            const numberOfParticles = (canvas.width * canvas.height) / 8000;
             for (let i = 0; i < numberOfParticles; i++) {
                 particles.push(new Particle());
             }
         }
 
         function connect() {
-            for (let a = 0; a < particles.length; a++) {
-                for (let b = a; b < particles.length; b++) {
-                    const dx = particles[a].x - particles[b].x;
-                    const dy = particles[a].y - particles[b].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    // Connect dots to each other if close
-                    if (distance < 100) {
-                        ctx.strokeStyle = `rgba(177, 156, 217, ${1 - distance/100})`; // Fade out lines
-                        ctx.lineWidth = 0.5;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[a].x, particles[a].y);
-                        ctx.lineTo(particles[b].x, particles[b].y);
-                        ctx.stroke();
-                    }
-                }
-
-                // Connect dots to mouse
-                if (mouse.x !== null) {
-                    const dxMouse = particles[a].x - mouse.x;
-                    const dyMouse = particles[a].y - mouse.y;
+            if (mouse.x !== null) {
+                for (let i = 0; i < particles.length; i++) {
+                    const dxMouse = particles[i].x - mouse.x;
+                    const dyMouse = particles[i].y - mouse.y;
                     const distanceMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
 
                     if (distanceMouse < mouse.radius) {
                         ctx.strokeStyle = `rgba(177, 156, 217, ${1 - distanceMouse/mouse.radius})`;
                         ctx.lineWidth = 1;
                         ctx.beginPath();
-                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(mouse.x, mouse.y);
                         ctx.stroke();
                     }
