@@ -11,7 +11,7 @@
             --bg-color: #121212;
             --text-white: #ffffff;
             --dot-purple: #b19cd9;
-            --card-bg: #1a1a2e; /* Darker, solid background for the card */
+            --card-bg: #1a1a2e;
             --bar-blur: 10px;
         }
 
@@ -86,7 +86,6 @@
             margin-bottom: 50px;
         }
 
-        /* Game Card Styling to match the image provided */
         .game-card {
             background: var(--card-bg);
             border-radius: 12px;
@@ -125,7 +124,7 @@
 
         .game-description {
             font-size: 0.85rem;
-            color: #8a8a9e; /* Muted color for description */
+            color: #8a8a9e;
             font-weight: 400;
         }
 
@@ -160,7 +159,7 @@
             <a href="fnaf.html" class="game-card">
                 <div class="game-image" style="background-image: url('https://raw.githubusercontent.com/murt391/dll/refs/heads/main/38.png');"></div>
                 <div class="game-info">
-                    <div class="game-name">Five Night's At Freddy's</div>
+                    <div class="game-name">Five Nights At Freddy's</div>
                     <div class="game-description">The original FNAF horror game.</div>
                 </div>
             </a>
@@ -168,7 +167,7 @@
             <a href="fnaf2.html" class="game-card">
                 <div class="game-image" style="background-image: url('https://raw.githubusercontent.com/murt391/dll/refs/heads/main/39.png');"></div>
                 <div class="game-info">
-                    <div class="game-name">Five Night's At Freddy's 2</div>
+                    <div class="game-name">Five Nights At Freddy's 2</div>
                     <div class="game-description">The second FNAF game of their collection.</div>
                 </div>
             </a>
@@ -176,7 +175,7 @@
             <a href="fnaf3.html" class="game-card">
                 <div class="game-image" style="background-image: url('https://raw.githubusercontent.com/murt391/dll/refs/heads/main/40.png');"></div>
                 <div class="game-info">
-                    <div class="game-name">Five Night's At Freddy's 3</div>
+                    <div class="game-name">Five Nights At Freddy's 3</div>
                     <div class="game-description">The third FNAF game of their collection.</div>
                 </div>
             </a>
@@ -184,23 +183,91 @@
             <a href="fnaf4.html" class="game-card">
                 <div class="game-image" style="background-image: url('https://raw.githubusercontent.com/murt391/dll/refs/heads/main/41.png');"></div>
                 <div class="game-info">
-                    <div class="game-name">Five Night's At Freddy's 4</div>
+                    <div class="game-name">Five Nights At Freddy's 4</div>
                     <div class="game-description">The fourth FNAF game of their collection.</div>
+                </div>
+            </a>
+
+            <a href="fnaf4hallo.html" class="game-card">
+                <div class="game-image" style="background-image: url('https://raw.githubusercontent.com/murt391/dll/refs/heads/main/428.png');"></div>
+                <div class="game-info">
+                    <div class="game-name">Five Nights At Freddy's 4: Halloween</div>
+                    <div class="game-description">A spinoff of the original FNAF 4 game.</div>
                 </div>
             </a>
 
             <a href="fnafsis.html" class="game-card">
                 <div class="game-image" style="background-image: url('https://raw.githubusercontent.com/murt391/dll/refs/heads/main/185.png');"></div>
                 <div class="game-info">
-                    <div class="game-name">Five Night's At Freddy's: Sister Location</div>
+                    <div class="game-name">Five Nights At Freddy's: Sister Location</div>
                     <div class="game-description">The fifth FNAF game of their collection.</div>
+                </div>
+            </a>
+
+            <a href="fnafsim.html" class="game-card">
+                <div class="game-image" style="background-image: url('https://raw.githubusercontent.com/murt391/dll/refs/heads/main/191.png');"></div>
+                <div class="game-info">
+                    <div class="game-name">Five Nights At Freddy's: Pizzarea Simulator</div>
+                    <div class="game-description">A new style of FNAF, bringing a simulator type-style.</div>
+                </div>
+            </a>
+
+            <a href="fnafucn.html" class="game-card">
+                <div class="game-image" style="background-image: url('https://raw.githubusercontent.com/murt391/dll/refs/heads/main/192.png');"></div>
+                <div class="game-info">
+                    <div class="game-name">Five Nights At Freddy's: Ultimate Custom Night</div>
+                    <div class="game-description">A type of FNAF where you can select your difficulty.</div>
+                </div>
+            </a>
+
+            <a href="fnac.html" class="game-card">
+                <div class="game-image" style="background-image: url('https://raw.githubusercontent.com/murt391/dll/refs/heads/main/503.png');"></div>
+                <div class="game-info">
+                    <div class="game-name">Five Nights At Candy's</div>
+                    <div class="game-description">A spinoff of the FNAF collection but with different animatronics.</div>
+                </div>
+            </a>
+
+            <a href="fnac2.html" class="game-card">
+                <div class="game-image" style="background-image: url('https://raw.githubusercontent.com/murt391/dll/refs/heads/main/504.png');"></div>
+                <div class="game-info">
+                    <div class="game-name">Five Nights At Candy's 2</div>
+                    <div class="game-description">The second spinoff of the FNAF collection but with different animatronics.</div>
+                </div>
+            </a>
+
+            <a href="FNAE.htmll" class="game-card">
+                <div class="game-image" style="background-image: url('https://raw.githubusercontent.com/murt391/dll/refs/heads/main/710.png');"></div>
+                <div class="game-info">
+                    <div class="game-name">Five Nights At Epstein's</div>
+                    <div class="game-description">A weird version of the FNAF game...</div>
                 </div>
             </a>
         </div>
     </div>
 
+    <audio id="bgMusic" loop></audio>
+
     <script>
         lucide.createIcons();
+
+        // Load Settings
+        const bgMusic = document.getElementById('bgMusic');
+        let dotsEnabled = localStorage.getItem('dotsEnabled') !== 'false';
+        let currentSong = localStorage.getItem('currentSong') || '';
+
+        function updateMusic() {
+            if (currentSong) {
+                bgMusic.src = currentSong;
+                bgMusic.play().catch(e => console.log("Autoplay blocked"));
+            }
+        }
+        
+        window.addEventListener('click', () => {
+            if (currentSong && bgMusic.paused) bgMusic.play();
+        }, { once: true });
+
+        updateMusic();
 
         // Particle system
         const canvas = document.getElementById('particle-canvas');
@@ -215,15 +282,8 @@
         }
 
         window.addEventListener('resize', resizeCanvas);
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.x;
-            mouse.y = e.y;
-        });
-        
-        window.addEventListener('mouseout', () => {
-            mouse.x = null;
-            mouse.y = null;
-        });
+        window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+        window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
 
         class Particle {
             constructor() {
@@ -233,17 +293,12 @@
                 this.speedX = (Math.random() - 0.5) * 0.3;
                 this.speedY = (Math.random() - 0.5) * 0.3;
             }
-
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
-
-                if (this.x > canvas.width) this.x = 0;
-                else if (this.x < 0) this.x = canvas.width;
-                if (this.y > canvas.height) this.y = 0;
-                else if (this.y < 0) this.y = canvas.height;
+                if (this.x > canvas.width) this.x = 0; else if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0; else if (this.y < 0) this.y = canvas.height;
             }
-
             draw() {
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                 ctx.beginPath();
@@ -255,37 +310,32 @@
         function initParticles() {
             particles = [];
             const numberOfParticles = (canvas.width * canvas.height) / 8000;
-            for (let i = 0; i < numberOfParticles; i++) {
-                particles.push(new Particle());
-            }
-        }
-
-        function connect() {
-            if (mouse.x !== null) {
-                for (let i = 0; i < particles.length; i++) {
-                    const dxMouse = particles[i].x - mouse.x;
-                    const dyMouse = particles[i].y - mouse.y;
-                    const distanceMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
-
-                    if (distanceMouse < mouse.radius) {
-                        ctx.strokeStyle = `rgba(177, 156, 217, ${1 - distanceMouse/mouse.radius})`;
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(mouse.x, mouse.y);
-                        ctx.stroke();
-                    }
-                }
-            }
+            for (let i = 0; i < numberOfParticles; i++) particles.push(new Particle());
         }
 
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
+            if (dotsEnabled) {
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                }
+                if (mouse.x !== null) {
+                    for (let i = 0; i < particles.length; i++) {
+                        const dx = particles[i].x - mouse.x;
+                        const dy = particles[i].y - mouse.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < mouse.radius) {
+                            ctx.strokeStyle = `rgba(177, 156, 217, ${1 - dist/mouse.radius})`;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(mouse.x, mouse.y);
+                            ctx.stroke();
+                        }
+                    }
+                }
             }
-            connect();
             requestAnimationFrame(animate);
         }
 
