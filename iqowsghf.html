@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protected Tabs</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#000;
+    color:white;
+    height:100vh;
+}
+
+/* Login Screen */
+#loginScreen{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+#passwordInput{
+    margin-top:15px;
+    padding:12px;
+    width:250px;
+    background:#111;
+    color:white;
+    border:1px solid #444;
+    border-radius:6px;
+}
+
+#loginBtn{
+    margin-top:10px;
+    padding:12px 25px;
+    background:#333;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+#loginBtn:hover{
+    background:#555;
+}
+
+#error{
+    color:red;
+    margin-top:10px;
+}
+
+/* Main Content */
+#mainContent{
+    display:none;
+}
+
+.tabs{
+    display:flex;
+    background:#111;
+    border-bottom:2px solid #333;
+}
+
+.tab-btn{
+    flex:1;
+    padding:15px;
+    background:#111;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+.tab-btn:hover{
+    background:#222;
+}
+
+.tab-btn.active{
+    background:#333;
+}
+
+.tab-content{
+    display:none;
+    padding:30px;
+}
+
+.tab-content.active{
+    display:block;
+}
+
+.action-btn{
+    padding:15px 30px;
+    background:#444;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.action-btn:hover{
+    background:#666;
+}
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="loginScreen">
+    <h1>Enter Password</h1>
+    <input type="password" id="passwordInput" placeholder="Password">
+    <button id="loginBtn" onclick="login()">Log In</button>
+    <div id="error"></div>
+</div>
+
+<!-- Main Content -->
+<div id="mainContent">
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab('tab1', this)">Tab 1</button>
+        <button class="tab-btn" onclick="openTab('tab2', this)">Tab 2</button>
+        <button class="tab-btn" onclick="openTab('tab3', this)">Tab 3</button>
+        <button class="tab-btn" onclick="openTab('tab4', this)">Tab 4</button>
+    </div>
+
+    <div id="tab1" class="tab-content active">
+        <h2>Tab 1</h2><br>
+        <button class="action-btn" onclick="button1()">Button 1</button>
+    </div>
+
+    <div id="tab2" class="tab-content">
+        <h2>Tab 2</h2><br>
+        <button class="action-btn" onclick="button2()">Button 2</button>
+    </div>
+
+    <div id="tab3" class="tab-content">
+        <h2>Tab 3</h2><br>
+        <button class="action-btn" onclick="button3()">Button 3</button>
+    </div>
+
+    <div id="tab4" class="tab-content">
+        <h2>Tab 4</h2><br>
+        <button class="action-btn" onclick="button4()">Button 4</button>
+    </div>
+
+</div>
+
+<script>
+const PASSWORD = "91658";
+
+function login() {
+    const entered = document.getElementById("passwordInput").value;
+
+    if (entered === PASSWORD) {
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("mainContent").style.display = "block";
+    } else {
+        document.getElementById("error").textContent = "Incorrect password";
+    }
+}
+
+function openTab(tabId, element){
+    document.querySelectorAll('.tab-content').forEach(tab=>{
+        tab.classList.remove('active');
+    });
+
+    document.querySelectorAll('.tab-btn').forEach(btn=>{
+        btn.classList.remove('active');
+    });
+
+    document.getElementById(tabId).classList.add('active');
+    element.classList.add('active');
+}
+
+// Your button actions
+function button1(){ alert("Button 1 clicked"); }
+function button2(){ alert("Button 2 clicked"); }
+function button3(){ alert("Button 3 clicked"); }
+function button4(){ alert("Button 4 clicked"); }
+</script>
+
+</body>
+</html>
