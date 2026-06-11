@@ -13,8 +13,8 @@
             --dot-purple: #b19cd9;
             --card-bg: #1a1a2e;
             --bar-blur: 10px;
-            --search-bg: rgba(255, 255, 255, 0.1);
-            --search-border: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.1);
         }
         * {
             margin: 0;
@@ -45,17 +45,12 @@
             z-index: 1;
         }
         
-        /* Header and Search Integration */
+        /* Header and Controls */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 50px;
-            gap: 20px;
-        }
-        .header-left {
-            display: flex;
-            align-items: center;
             gap: 20px;
         }
         .header h1 {
@@ -64,10 +59,10 @@
             white-space: nowrap;
         }
 
-        .header-right {
+        .header-controls {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
 
         /* Hover-Expandable Search Bar */
@@ -79,16 +74,15 @@
             border-radius: 30px;
             overflow: hidden;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
             backdrop-filter: blur(var(--bar-blur));
-            width: 50px; /* Initial state: just the icon */
+            width: 50px;
         }
 
         .search-wrapper:hover,
         .search-wrapper:focus-within {
-            width: 300px; /* Expanded state */
-            background: rgba(255, 255, 255, 0.15);
+            width: 250px;
             border-color: var(--dot-purple);
         }
 
@@ -99,7 +93,6 @@
             align-items: center;
             justify-content: center;
             color: var(--text-white);
-            cursor: pointer;
             z-index: 2;
         }
 
@@ -115,17 +108,11 @@
             padding-right: 20px;
             opacity: 0;
             transition: opacity 0.3s ease;
-            pointer-events: none;
         }
 
         .search-wrapper:hover .search-input,
         .search-wrapper:focus-within .search-input {
             opacity: 1;
-            pointer-events: auto;
-        }
-
-        .search-input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
         }
 
         .back-btn {
@@ -136,13 +123,12 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 10px 15px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
             border-radius: 30px;
-            backdrop-filter: blur(var(--bar-blur));
             height: 50px;
             width: 50px;
+            backdrop-filter: blur(var(--bar-blur));
         }
         .back-btn:hover {
             transform: scale(1.05);
@@ -215,14 +201,14 @@
 
         @media (max-width: 900px) {
             .games-grid { grid-template-columns: repeat(3, 1fr); }
-            .search-wrapper:hover, .search-wrapper:focus-within { width: 200px; }
+            .search-wrapper:hover, .search-wrapper:focus-within { width: 180px; }
         }
 
         @media (max-width: 600px) {
             .games-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .header h1 { font-size: 2rem; }
             .header { flex-direction: column; align-items: flex-start; gap: 15px; }
-            .header-right { width: 100%; justify-content: flex-end; }
+            .header-controls { width: 100%; justify-content: flex-end; }
         }
     </style>
 </head>
@@ -234,14 +220,16 @@
         <div class="header">
             <h1>Games</h1>
             
-            <div class="header-right">
+            <div class="header-controls">
+                <!-- Search Bar -->
                 <div class="search-wrapper">
                     <div class="search-icon">
                         <i data-lucide="search" size="20"></i>
                     </div>
-                    <input type="text" id="gameSearch" class="search-input" placeholder="Search games..." autocomplete="off">
+                    <input type="text" id="gameSearch" class="search-input" placeholder="Search..." autocomplete="off">
                 </div>
 
+                <!-- Back Button -->
                 <a href="index.html" class="back-btn">
                     <i data-lucide="arrow-left" size="24"></i>
                 </a>
@@ -617,18 +605,19 @@
                     <div class="game-description">A 2D platformer game where you swing like spiderman.</div>
                 </div>
             </a>
-            
+
             <div id="noResults" class="no-results">No games found matching your search.</div>
         </div>
     </div>
+
+    <audio id="bgMusic" loop></audio>
 
     <script>
         // Initialize Lucide icons
         lucide.createIcons();
 
-        // Load Settings
+        // --- RESTORED MUSIC FEATURE ---
         const bgMusic = document.getElementById('bgMusic');
-        let dotsEnabled = localStorage.getItem('dotsEnabled') !== 'false';
         let currentSong = localStorage.getItem('currentSong') || '';
 
         function updateMusic() {
@@ -644,10 +633,11 @@
 
         updateMusic();
 
-        // Particle system
+        // --- RESTORED DOT (PARTICLE) FEATURE ---
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
+        let dotsEnabled = localStorage.getItem('dotsEnabled') !== 'false';
         const mouse = { x: null, y: null, radius: 180 };
 
         function resizeCanvas() {
@@ -717,7 +707,7 @@
         resizeCanvas();
         animate();
 
-        // Search functionality
+        // --- SEARCH FUNCTIONALITY ---
         const searchInput = document.getElementById('gameSearch');
         const gameCards = document.querySelectorAll('.game-card');
         const noResults = document.getElementById('noResults');
@@ -730,7 +720,7 @@
                 const name = card.querySelector('.game-name').textContent.toLowerCase();
                 const description = card.querySelector('.game-description').textContent.toLowerCase();
                 
-                if (name.includes(searchTerm)) {
+                if (name.includes(searchTerm) || description.includes(searchTerm)) {
                     card.classList.remove('hidden');
                     visibleCount++;
                 } else {
