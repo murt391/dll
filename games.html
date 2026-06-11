@@ -58,6 +58,12 @@
             letter-spacing: 2px;
             white-space: nowrap;
         }
+        .item-count {
+            font-size: 1.5rem;
+            color: var(--dot-purple);
+            opacity: 0.8;
+            margin-left: 10px;
+        }
 
         .header-controls {
             display: flex;
@@ -218,7 +224,7 @@
 
     <div class="container">
         <div class="header">
-            <h1>Games</h1>
+            <h1>Games <span id="gameCount" class="item-count"></span></h1>
             
             <div class="header-controls">
                 <!-- Search Bar -->
@@ -616,7 +622,7 @@
         // Initialize Lucide icons
         lucide.createIcons();
 
-        // --- RESTORED MUSIC FEATURE ---
+        // Music System
         const bgMusic = document.getElementById('bgMusic');
         let currentSong = localStorage.getItem('currentSong') || '';
 
@@ -633,7 +639,7 @@
 
         updateMusic();
 
-        // --- RESTORED DOT (PARTICLE) FEATURE ---
+        // Particle System (Dots)
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -707,9 +713,20 @@
         resizeCanvas();
         animate();
 
-        // --- SEARCH FUNCTIONALITY ---
-        const searchInput = document.getElementById('gameSearch');
+        // --- DYNAMIC COUNTER LOGIC ---
+        const gameCountElement = document.getElementById('gameCount');
         const gameCards = document.querySelectorAll('.game-card');
+        
+        function updateCounter(visibleCount) {
+            const total = gameCards.length;
+            gameCountElement.textContent = `(${visibleCount})`;
+        }
+
+        // Initial count
+        updateCounter(gameCards.length);
+
+        // --- SEARCH FUNCTIONALITY (Names only) ---
+        const searchInput = document.getElementById('gameSearch');
         const noResults = document.getElementById('noResults');
 
         searchInput.addEventListener('input', (e) => {
@@ -718,8 +735,8 @@
 
             gameCards.forEach(card => {
                 const name = card.querySelector('.game-name').textContent.toLowerCase();
-                const description = card.querySelector('.game-description').textContent.toLowerCase();
                 
+                // ONLY SEARCHING IN NAMES
                 if (name.includes(searchTerm)) {
                     card.classList.remove('hidden');
                     visibleCount++;
@@ -727,6 +744,8 @@
                     card.classList.add('hidden');
                 }
             });
+
+            updateCounter(visibleCount);
 
             if (visibleCount === 0) {
                 noResults.style.display = 'block';
