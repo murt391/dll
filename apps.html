@@ -58,6 +58,12 @@
             letter-spacing: 2px;
             white-space: nowrap;
         }
+        .item-count {
+            font-size: 1.5rem;
+            color: var(--dot-purple);
+            opacity: 0.8;
+            margin-left: 10px;
+        }
 
         .header-right {
             display: flex;
@@ -218,7 +224,7 @@
 
     <div class="container">
         <div class="header">
-            <h1>Apps</h1>
+            <h1>Apps <span id="appCount" class="item-count"></span></h1>
             
             <div class="header-right">
                 <!-- Search Bar -->
@@ -347,9 +353,19 @@
         resizeCanvas();
         animate();
 
-        // Search Functionality (Names only)
-        const searchInput = document.getElementById('appSearch');
+        // --- DYNAMIC COUNTER LOGIC ---
+        const appCountElement = document.getElementById('appCount');
         const appCards = document.querySelectorAll('.game-card');
+        
+        function updateCounter(visibleCount) {
+            appCountElement.textContent = `(${visibleCount})`;
+        }
+
+        // Initial count
+        updateCounter(appCards.length);
+
+        // --- SEARCH FUNCTIONALITY (Names only) ---
+        const searchInput = document.getElementById('appSearch');
         const noResults = document.getElementById('noResults');
 
         searchInput.addEventListener('input', (e) => {
@@ -367,6 +383,8 @@
                     card.classList.add('hidden');
                 }
             });
+
+            updateCounter(visibleCount);
 
             if (visibleCount === 0) {
                 noResults.style.display = 'block';
