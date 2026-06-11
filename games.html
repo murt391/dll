@@ -720,7 +720,7 @@
                 const name = card.querySelector('.game-name').textContent.toLowerCase();
                 const description = card.querySelector('.game-description').textContent.toLowerCase();
                 
-                if (name.includes(searchTerm) || description.includes(searchTerm)) {
+                if (name.includes(searchTerm)) {
                     card.classList.remove('hidden');
                     visibleCount++;
                 } else {
