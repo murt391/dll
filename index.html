@@ -163,6 +163,9 @@
         <a href="apps.html" class="icon-btn" title="Apps">
             <i data-lucide="layout-grid" size="28"></i>
         </a>
+        <a href="https://discord.gg/s33ma95uSQ" target="_blank" class="icon-btn" title="Discord">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-discord"><path d="M18.14 7.17A.5.5 0 0 1 18 7a13.3 13.3 0 0 0-4.66-1.44.5.5 0 0 0-.5.25c-.2.34-.43.83-.59 1.21a11.85 11.85 0 0 0-4.5 0 10.4 10.4 0 0 0-.6-1.21.5.5 0 0 0-.5-.25 13.34 13.34 0 0 0-4.65 1.44.5.5 0 0 1-.15.03.5.5 0 0 0-.15.42 16.5 16.5 0 0 0 2.48 7.28.5.5 0 0 0 .43.24 14.1 14.1 0 0 0 4.1 2 .5.5 0 0 0 .58-.19c.35-.47.66-.97.92-1.5a.5.5 0 0 0-.28-.73 9.41 9.41 0 0 1-1.36-.65.5.5 0 0 1-.05-.83c.1-.07.2-.15.3-.22a.5.5 0 0 1 .53-.05 10.78 10.78 0 0 0 8.44 0 .5.5 0 0 1 .53.05c.1.07.2.15.3.22a.5.5 0 0 1-.05.83 9.38 9.38 0 0 1-1.36.65.5.5 0 0 0-.28.73c.26.53.57 1.03.92 1.5a.5.5 0 0 0 .58.19 14.11 14.11 0 0 0 4.1-2 .5.5 0 0 0 .43-.24 16.5 16.5 0 0 0 2.48-7.28.5.5 0 0 0-.15-.45Z"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/></svg>
+        </a>
     </nav>
 
     <audio id="bgMusic" loop></audio>
@@ -173,11 +176,13 @@
         // Music Logic
         const bgMusic = document.getElementById('bgMusic');
         let currentSong = localStorage.getItem('currentSong') || '';
+        let currentVolume = localStorage.getItem('musicVolume') || '0.5';
         let dotsEnabled = localStorage.getItem('dotsEnabled') !== 'false';
 
         function updateMusic() {
             if (currentSong) {
                 bgMusic.src = currentSong;
+                bgMusic.volume = parseFloat(currentVolume);
                 bgMusic.play().catch(e => console.log("Autoplay blocked"));
             }
         }
@@ -189,7 +194,7 @@
         updateMusic();
 
         // Subtitle Logic
-        const sayings = [ "hamood habibi", "murt", "idk what to put here", "totally math ;)", "blah blah blah bleh bleh bleh blu blu blu", "grannys house", "homer drops his donut DOH" ];
+        const sayings = [ "hamood habibi", "murt", "idk what to put here", "totally math ;)", "blah blah blah bleh bleh bleh blu blu blu", "grannys house", "homer drops his donut DOH", "skibidi boppy", "dllontop.org is the original website", "Yes, you can play GTA 6 on your right toenail." ];
         const subtitleElement = document.getElementById('subtitle');
         subtitleElement.textContent = sayings[Math.floor(Math.random() * sayings.length)];
 
