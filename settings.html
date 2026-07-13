@@ -170,10 +170,43 @@
             min-width: 150px;
         }
 
+        /* Volume Slider Styling */
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 150px;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 5px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--dot-purple);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
         @media (max-width: 600px) {
             .header h1 { font-size: 2rem; }
             .setting-item { flex-direction: column; align-items: flex-start; gap: 15px; }
-            select { width: 100%; }
+            select, .volume-container { width: 100%; }
         }
     </style>
 </head>
@@ -213,6 +246,17 @@
                     <option value="https://raw.githubusercontent.com/murt391/dll/refs/heads/main/MONTAGEM ONE MORE GAME - DJ KVNXD.mp3">One More Game Funk</option>
                 </select>
             </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Music Volume</h3>
+                    <p>Adjust the playback volume of the background music.</p>
+                </div>
+                <div class="volume-container">
+                    <i data-lucide="volume-2" size="20"></i>
+                    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+                </div>
+            </div>
         </div>
     </div>
 
@@ -223,14 +267,18 @@
 
         const dotToggle = document.getElementById('dotToggle');
         const songSwitcher = document.getElementById('songSwitcher');
+        const volumeSlider = document.getElementById('volumeSlider');
         const bgMusic = document.getElementById('bgMusic');
 
         // Load Settings
         let dotsEnabled = localStorage.getItem('dotsEnabled') !== 'false';
         let currentSong = localStorage.getItem('currentSong') || '';
+        let currentVolume = localStorage.getItem('musicVolume') || '0.5';
 
         dotToggle.checked = dotsEnabled;
         songSwitcher.value = currentSong;
+        volumeSlider.value = currentVolume;
+        bgMusic.volume = parseFloat(currentVolume);
 
         function updateMusic() {
             if (currentSong) {
@@ -251,6 +299,12 @@
             currentSong = e.target.value;
             localStorage.setItem('currentSong', currentSong);
             updateMusic();
+        };
+
+        volumeSlider.oninput = (e) => {
+            currentVolume = e.target.value;
+            bgMusic.volume = parseFloat(currentVolume);
+            localStorage.setItem('musicVolume', currentVolume);
         };
 
         window.addEventListener('click', () => {
