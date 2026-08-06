@@ -681,10 +681,12 @@
         // Music System
         const bgMusic = document.getElementById('bgMusic');
         let currentSong = localStorage.getItem('currentSong') || '';
+        let currentVolume = localStorage.getItem('musicVolume') || '0.5';
 
         function updateMusic() {
             if (currentSong) {
                 bgMusic.src = currentSong;
+                bgMusic.volume = parseFloat(currentVolume);
                 bgMusic.play().catch(e => console.log("Autoplay blocked"));
             }
         }
