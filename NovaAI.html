@@ -316,23 +316,15 @@
     <script>
         lucide.createIcons();
 
-        const API_KEY = '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';
-        const BASE_URL = 'https://integrate.api.nvidia.com/v1';
+        // Backend API endpoint
+        const BACKEND_URL = 'https://8000-imp57jgl73soeycohhcxn-bbf08e2f.us2.manus.computer';
         const MODEL = 'z-ai/glm-5.2';
-        
-        // CORS proxy options
-        const CORS_PROXIES = [
-            'https://cors-anywhere.herokuapp.com/',
-            'https://api.allorigins.win/raw?url=',
-            'https://thingproxy.freeboard.io/fetch/'
-        ];
 
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
 
         let chatHistory = [];
-        let currentProxyIndex = 0;
 
         // Send message logic
         async function sendMessage() {
@@ -354,18 +346,18 @@
             try {
                 chatHistory.push({ role: 'user', content: text });
                 
-                const requestBody = JSON.stringify({
-                    model: MODEL,
-                    messages: chatHistory,
-                    temperature: 0.7,
-                    max_tokens: 1024
+                const response = await fetch(`${BACKEND_URL}/api/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: MODEL,
+                        messages: chatHistory,
+                        temperature: 0.7,
+                        max_tokens: 1024
+                    })
                 });
-
-                // Try direct fetch first
-                let response = await attemptFetch(
-                    `${BASE_URL}/chat/completions`,
-                    requestBody
-                );
 
                 const data = await response.json();
                 
@@ -378,8 +370,8 @@
                     const aiResponse = data.choices[0].message.content;
                     addMessage(aiResponse, 'ai');
                     chatHistory.push({ role: 'assistant', content: aiResponse });
-                } else if (data.error) {
-                    addMessage(`Error: ${data.error.message || JSON.stringify(data.error)}`, 'error');
+                } else if (data.detail) {
+                    addMessage(`Error: ${data.detail}`, 'error');
                 } else {
                     addMessage('Sorry, I encountered an error processing your request.', 'error');
                 }
@@ -389,56 +381,7 @@
                     chatMessages.removeChild(typingDiv);
                 }
                 sendBtn.disabled = false;
-                addMessage(`Connection Error: ${error.message}. Please check your internet connection or try again.`, 'error');
-            }
-        }
-
-        async function attemptFetch(url, body) {
-            const headers = {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`
-            };
-
-            try {
-                // Try direct request first
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: headers,
-                    body: body
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                return response;
-            } catch (directError) {
-                console.log('Direct fetch failed, trying with CORS proxy...');
-                
-                // Try with CORS proxy
-                if (currentProxyIndex < CORS_PROXIES.length) {
-                    const proxyUrl = CORS_PROXIES[currentProxyIndex] + encodeURIComponent(url);
-                    currentProxyIndex++;
-                    
-                    try {
-                        const response = await fetch(proxyUrl, {
-                            method: 'POST',
-                            headers: headers,
-                            body: body
-                        });
-                        
-                        if (!response.ok) {
-                            throw new Error(`HTTP ${response.status}`);
-                        }
-                        
-                        return response;
-                    } catch (proxyError) {
-                        console.error('CORS proxy failed:', proxyError);
-                        throw new Error('Unable to connect to AI service. Please try again later.');
-                    }
-                } else {
-                    throw directError;
-                }
+                addMessage(`Connection Error: ${error.message}`, 'error');
             }
         }
 
