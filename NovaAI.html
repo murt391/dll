@@ -120,6 +120,7 @@
             font-weight: 700;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 10px;
         }
 
@@ -153,10 +154,22 @@
             border-color: #fff;
         }
 
-        .model-loading {
+        .model-status {
             padding: 20px;
             text-align: center;
             color: #888;
+            font-size: 0.9rem;
+        }
+
+        .retry-btn {
+            margin-top: 10px;
+            background: var(--dot-purple);
+            color: #000;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
         }
 
         /* Chat Area */
@@ -307,11 +320,14 @@
     <main class="main-container">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <i data-lucide="cpu" size="18"></i>
-                <span>Available Models</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i data-lucide="cpu" size="18"></i>
+                    <span>Models</span>
+                </div>
+                <button onclick="fetchModels()" class="retry-btn" style="padding: 2px 8px; font-size: 0.7rem;">Refresh</button>
             </div>
             <div class="model-list" id="modelList">
-                <div class="model-loading">Loading models...</div>
+                <div class="model-status" id="modelStatus">Loading models...</div>
             </div>
         </aside>
 
@@ -333,34 +349,52 @@
     <audio id="bgMusic" loop></audio>
 
     <script>
-        lucide.createIcons();
-
-        // Backend API endpoint
+        // Use a stable backend URL
         const BACKEND_URL = 'https://8000-imp57jgl73soeycohhcxn-bbf08e2f.us2.manus.computer';
-
-        const modelList = document.getElementById('modelList');
-        const chatMessages = document.getElementById('chatMessages');
-        const chatInput = document.getElementById('chatInput');
-        const sendBtn = document.getElementById('sendBtn');
 
         let selectedModel = '';
         let chatHistory = [];
         let isStreaming = false;
 
-        // Fetch available models
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            initParticles();
+            animate();
+            updateMusic();
+            fetchModels();
+        });
+
+        const modelList = document.getElementById('modelList');
+        const modelStatus = document.getElementById('modelStatus');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+
         async function fetchModels() {
+            modelStatus.innerHTML = 'Connecting to server...';
+            modelList.innerHTML = '';
+            modelList.appendChild(modelStatus);
+
             try {
-                const response = await fetch(`${BACKEND_URL}/api/models`);
+                const response = await fetch(`${BACKEND_URL}/api/models`, {
+                    mode: 'cors',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (!response.ok) throw new Error(`Server returned ${response.status}`);
+                
                 const data = await response.json();
                 
-                modelList.innerHTML = '';
                 if (data.models && data.models.length > 0) {
+                    modelList.innerHTML = '';
                     data.models.forEach((model, index) => {
                         const div = document.createElement('div');
                         div.className = 'model-item';
-                        if (index === 0) {
+                        if (index === 0 && !selectedModel) {
                             div.classList.add('active');
                             selectedModel = model;
+                        } else if (model === selectedModel) {
+                            div.classList.add('active');
                         }
                         div.textContent = model;
                         div.onclick = () => {
@@ -371,29 +405,26 @@
                         modelList.appendChild(div);
                     });
                 } else {
-                    modelList.innerHTML = '<div class="model-loading">No models found</div>';
+                    modelStatus.innerHTML = 'No models available.<br><button onclick="fetchModels()" class="retry-btn">Retry</button>';
                 }
             } catch (error) {
                 console.error('Error fetching models:', error);
-                modelList.innerHTML = '<div class="model-loading">Error loading models</div>';
+                modelStatus.innerHTML = `Connection failed.<br><small>${error.message}</small><br><button onclick="fetchModels()" class="retry-btn">Retry</button>`;
             }
         }
 
-        // Send message with streaming
         async function sendMessage() {
             const text = chatInput.value.trim();
             if (!text || !selectedModel || isStreaming) return;
 
-            // Add user message
             addMessage(text, 'user');
             chatInput.value = '';
             sendBtn.disabled = true;
             isStreaming = true;
             
-            // Create AI message container
             const aiMessageDiv = document.createElement('div');
             aiMessageDiv.className = 'message ai';
-            aiMessageDiv.textContent = '';
+            aiMessageDiv.textContent = '...';
             chatMessages.appendChild(aiMessageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
@@ -402,9 +433,7 @@
                 
                 const response = await fetch(`${BACKEND_URL}/api/chat`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         model: selectedModel,
                         messages: chatHistory,
@@ -414,13 +443,12 @@
                     })
                 });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let fullResponse = '';
+                aiMessageDiv.textContent = '';
 
                 while (true) {
                     const { done, value } = await reader.read();
@@ -431,30 +459,20 @@
 
                     for (const line of lines) {
                         if (line.startsWith('data: ')) {
-                            const data = line.slice(6);
-                            if (data === '[DONE]') {
-                                continue;
-                            }
+                            const data = line.slice(6).trim();
+                            if (data === '[DONE]') continue;
                             try {
                                 const parsed = JSON.parse(data);
-                                if (parsed.choices && parsed.choices[0]) {
-                                    const delta = parsed.choices[0].delta;
-                                    if (delta.content) {
-                                        fullResponse += delta.content;
-                                        aiMessageDiv.textContent = fullResponse;
-                                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                                    }
+                                if (parsed.choices && parsed.choices[0].delta.content) {
+                                    fullResponse += parsed.choices[0].delta.content;
+                                    aiMessageDiv.textContent = fullResponse;
+                                    chatMessages.scrollTop = chatMessages.scrollHeight;
                                 }
-                            } catch (e) {
-                                // Ignore JSON parse errors
-                            }
+                            } catch (e) {}
                         }
                     }
                 }
-
-                if (fullResponse) {
-                    chatHistory.push({ role: 'assistant', content: fullResponse });
-                }
+                chatHistory.push({ role: 'assistant', content: fullResponse });
             } catch (error) {
                 console.error('Error:', error);
                 aiMessageDiv.className = 'message error';
@@ -474,27 +492,20 @@
         }
 
         sendBtn.onclick = sendMessage;
-        chatInput.onkeypress = (e) => { if (e.key === 'Enter' && !sendBtn.disabled && !isStreaming) sendMessage(); };
+        chatInput.onkeypress = (e) => { if (e.key === 'Enter' && !sendBtn.disabled) sendMessage(); };
 
         // Music Logic
         const bgMusic = document.getElementById('bgMusic');
-        let currentSong = localStorage.getItem('currentSong') || '';
-        let currentVolume = localStorage.getItem('musicVolume') || '0.5';
-        let dotsEnabled = localStorage.getItem('dotsEnabled') !== 'false';
-
         function updateMusic() {
+            let currentSong = localStorage.getItem('currentSong') || '';
+            let currentVolume = localStorage.getItem('musicVolume') || '0.5';
             if (currentSong) {
                 bgMusic.src = currentSong;
                 bgMusic.volume = parseFloat(currentVolume);
-                bgMusic.play().catch(e => console.log("Autoplay blocked"));
+                bgMusic.play().catch(() => console.log("Autoplay blocked"));
             }
         }
-        
-        window.addEventListener('click', () => {
-            if (currentSong && bgMusic.paused) bgMusic.play();
-        }, { once: true });
-
-        updateMusic();
+        window.addEventListener('click', () => { if (bgMusic.paused && bgMusic.src) bgMusic.play(); }, { once: true });
 
         // Particle System
         const canvas = document.getElementById('particle-canvas');
@@ -507,6 +518,48 @@
             canvas.height = window.innerHeight;
             initParticles();
         }
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+        window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
 
-        window.addEventListener('resize', resizeCanvas);        wi
-(Content truncated due to size limit. Use line ranges to read remaining content)
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.3;
+                this.speedY = (Math.random() - 0.5) * 0.3;
+            }
+            update() {
+                this.x += this.speedX; this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0; else if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0; else if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+        function initParticles() {
+            particles = [];
+            const count = (canvas.width * canvas.height) / 8000;
+            for (let i = 0; i < count; i++) particles.push(new Particle());
+        }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            if (mouse.x !== null) {
+                particles.forEach(p => {
+                    const dx = p.x - mouse.x, dy = p.y - mouse.y, dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < mouse.radius) {
+                        ctx.strokeStyle = `rgba(177, 156, 217, ${1 - dist/mouse.radius})`;
+                        ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
+                    }
+                });
+            }
+            requestAnimationFrame(animate);
+        }
+        resizeCanvas();
+    </script>
+</body>
+</html>
