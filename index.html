@@ -175,11 +175,6 @@
     <script>
         lucide.createIcons();
 
-        window.addEventListener("beforeunload", function (event) {
-            event.preventDefault();
-            event.returnValue = "";
-        });
-
         const bgMusic = document.getElementById('bgMusic');
         let currentSong = localStorage.getItem('currentSong') || '';
         let currentVolume = localStorage.getItem('musicVolume') || '0.5';
