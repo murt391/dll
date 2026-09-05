@@ -175,10 +175,24 @@
     <script>
         lucide.createIcons();
 
-        window.addEventListener("beforeunload", function (event) {
-      event.preventDefault();
-      event.returnValue = "";
-    });
+        <script>
+document.addEventListener("click", function (event) {
+    const link = event.target.closest("a");
+
+    if (!link || !link.href) return;
+
+    const url = new URL(link.href, location.href);
+
+    // Only warn when going to another site
+    if (url.origin !== location.origin) {
+        const leave = confirm("Leave Site?\n\nAre you sure you want to leave this site?");
+
+        if (!leave) {
+            event.preventDefault();
+        }
+    }
+});
+</script>
 
         // Music Logic
         const bgMusic = document.getElementById('bgMusic');
